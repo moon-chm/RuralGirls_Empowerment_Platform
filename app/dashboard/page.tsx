@@ -19,6 +19,7 @@ import {
 } from "lucide-react"
 import { motion, useScroll, useTransform, useInView, useSpring, useAnimation } from "framer-motion"
 import { AnimatedGradientText } from "@/components/ui/animated-gradient-text"
+import { TranslateButton } from "@/components/translate-button"
 
 export default function Home() {
   const heroRef = useRef(null)
@@ -43,26 +44,98 @@ export default function Home() {
   const [count3, setCount3] = useState(0)
   const [count4, setCount4] = useState(0)
 
+  // Translation state for dynamic content
+  const [content, setContent] = useState({
+    heroTitle: "Brighter Future",
+    heroSubtitle: "Access education, develop skills, build businesses, and connect with a supportive community designed specifically for rural girls.",
+    heroButton1: "Join Now",
+    heroButton2: "Explore Features",
+    testimonialsTitle: "Hear From Our Community",
+    testimonialsSubtitle: "Real stories from girls who have transformed their lives through our platform.",
+    featuresTitle: "Comprehensive Features",
+    featuresSubtitle: "Our platform offers extensive resources designed specifically for rural girls.",
+    updatesTitle: "Latest Updates",
+    updatesSubtitle: "Stay informed about new resources, events, and opportunities.",
+    ctaTitle: "Join Our Community Today",
+    ctaSubtitle: "Connect with other rural girls, access resources, and start your journey towards empowerment.",
+    impactTitle: "Our Impact",
+    impactSubtitle: "Transforming lives across rural communities",
+    howItWorksTitle: "How It Works",
+    howItWorksSubtitle: "Simple steps to start your empowerment journey",
+  })
+
+  // Translation handler
+  const handleTranslate = async (languageCode, languageName) => {
+    const textsToTranslate = [
+      "Brighter Future",
+      "Access education, develop skills, build businesses, and connect with a supportive community designed specifically for rural girls.",
+      "Join Now",
+      "Explore Features",
+      "Hear From Our Community",
+      "Real stories from girls who have transformed their lives through our platform.",
+      "Comprehensive Features",
+      "Our platform offers extensive resources designed specifically for rural girls.",
+      "Latest Updates",
+      "Stay informed about new resources, events, and opportunities.",
+      "Join Our Community Today",
+      "Connect with other rural girls, access resources, and start your journey towards empowerment.",
+      "Our Impact",
+      "Transforming lives across rural communities",
+      "How It Works",
+      "Simple steps to start your empowerment journey",
+    ]
+
+    try {
+      const translationPromises = textsToTranslate.map(async (text) => {
+        const response = await fetch("/api/gemini/translate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text, targetLanguage: languageName }),
+        })
+        if (!response.ok) throw new Error("Translation failed")
+        const data = await response.json()
+        return data.translatedText
+      })
+
+      const translated = await Promise.all(translationPromises)
+
+      setContent({
+        heroTitle: translated[0],
+        heroSubtitle: translated[1],
+        heroButton1: translated[2],
+        heroButton2: translated[3],
+        testimonialsTitle: translated[4],
+        testimonialsSubtitle: translated[5],
+        featuresTitle: translated[6],
+        featuresSubtitle: translated[7],
+        updatesTitle: translated[8],
+        updatesSubtitle: translated[9],
+        ctaTitle: translated[10],
+        ctaSubtitle: translated[11],
+        impactTitle: translated[12],
+        impactSubtitle: translated[13],
+        howItWorksTitle: translated[14],
+        howItWorksSubtitle: translated[15],
+      })
+    } catch (error) {
+      console.error("Translation error:", error)
+      throw error
+    }
+  }
+
   useEffect(() => {
     if (isStatsInView) {
-      // Animate the counters
-      const duration = 2000 // 2 seconds
-      const interval = 20 // Update every 20ms
-
+      const duration = 2000
+      const interval = 20
       const target1 = 10000
       const target2 = 500
       const target3 = 2500
       const target4 = 85
-
-      const steps1 = Math.ceil(duration / interval)
-      const steps2 = Math.ceil(duration / interval)
-      const steps3 = Math.ceil(duration / interval)
-      const steps4 = Math.ceil(duration / interval)
-
-      const increment1 = target1 / steps1
-      const increment2 = target2 / steps2
-      const increment3 = target3 / steps3
-      const increment4 = target4 / steps4
+      const steps = Math.ceil(duration / interval)
+      const increment1 = target1 / steps
+      const increment2 = target2 / steps
+      const increment3 = target3 / steps
+      const increment4 = target4 / steps
 
       let current1 = 0
       let current2 = 0
@@ -89,7 +162,6 @@ export default function Home() {
     }
   }, [isStatsInView])
 
-
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -113,12 +185,16 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-dvh">
+      {/* Floating Translate Button - Fixed Position */}
+      <div className="fixed top-20 right-4 z-50 animate-in fade-in slide-in-from-right-5 duration-500">
+        <TranslateButton onTranslate={handleTranslate} />
+      </div>
+
       {/* Hero Section */}
       <section
         ref={heroRef}
         className="w-full py-12 md:py-24 lg:py-32 xl:py-48 overflow-hidden relative bg-gradient-to-b from-purple-50 via-pink-50 to-white dark:from-gray-900 dark:via-gray-800 dark:to-background"
       >
-        {/* Animated background elements */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-20 -left-20 w-40 h-40 bg-purple-200 rounded-full opacity-20 animate-float" />
           <div className="absolute top-40 -right-20 w-60 h-60 bg-pink-200 rounded-full opacity-20 animate-float-delay-1" />
@@ -154,7 +230,7 @@ export default function Home() {
                 >
                   <span className="block">Building a</span>{" "}
                   <span className="bg-gradient-to-r from-purple-600 to-pink-500 text-transparent bg-clip-text">
-                    Brighter Future
+                    {content.heroTitle}
                   </span>
                 </motion.h1>
                 <motion.p
@@ -163,8 +239,7 @@ export default function Home() {
                   transition={{ delay: 0.4, duration: 0.7 }}
                   className="max-w-[600px] text-muted-foreground md:text-xl"
                 >
-                  Access education, develop skills, build businesses, and connect with a supportive community designed
-                  specifically for rural girls.
+                  {content.heroSubtitle}
                 </motion.p>
               </div>
               <motion.div
@@ -178,10 +253,10 @@ export default function Home() {
                   size="lg"
                   className="bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 text-white shadow-lg shadow-purple-200 dark:shadow-none"
                 >
-                  <Link href="/register">Join Now</Link>
+                  <Link href="/register">{content.heroButton1}</Link>
                 </Button>
                 <Button variant="outline" size="lg" asChild className="gradient-border">
-                  <Link href="#features">Explore Features</Link>
+                  <Link href="#features">{content.heroButton2}</Link>
                 </Button>
               </motion.div>
             </div>
@@ -192,7 +267,7 @@ export default function Home() {
               className="relative h-[400px] sm:h-[500px] lg:h-[600px] rounded-xl overflow-hidden shadow-2xl"
             >
               <Image
-                src="\home.png"
+                src="/home.png"
                 alt="Rural girls using digital devices"
                 fill
                 className="object-cover"
@@ -224,10 +299,10 @@ export default function Home() {
                 Inspirational Stories
               </Badge>
               <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
-                Hear From Our <span className="gradient-text">Community</span>
+                <span className="gradient-text">{content.testimonialsTitle}</span>
               </h2>
               <p className="max-w-[700px] text-muted-foreground md:text-xl">
-                Real stories from girls who have transformed their lives through our platform.
+                {content.testimonialsSubtitle}
               </p>
             </motion.div>
           </motion.div>
@@ -243,21 +318,21 @@ export default function Home() {
                 location: "Rajasthan",
                 quote:
                   "The digital literacy program helped me access government schemes for my family and start my own small business selling handcrafted jewelry. Now I earn enough to support my education and help my family.",
-                image: "\priya.jpg",
+                image: "/priya.jpg",
               },
               {
                 name: "Meena",
                 location: "Bihar",
                 quote:
                   "I learned tailoring through the skill marketplace and now earn enough to support my education. I've even started teaching other girls in my village and we're forming a cooperative to sell our products online.",
-                image: "meena.jpg",
+                image: "/meena.jpg",
               },
               {
                 name: "Lakshmi",
                 location: "Tamil Nadu",
                 quote:
                   "The health resources helped me understand important topics that were never discussed in my village. I've become a health ambassador, sharing what I've learned with other girls and women in my community.",
-                image: "\lakshmi.jpg",
+                image: "/lakshmi.jpg",
               },
             ].map((testimonial, index) => (
               <motion.div variants={itemVariants} key={index}>
@@ -304,10 +379,10 @@ export default function Home() {
           >
             <motion.div variants={itemVariants} className="space-y-2">
               <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
-                Comprehensive <span className="gradient-text">Features</span>
+                <span className="gradient-text">{content.featuresTitle}</span>
               </h2>
               <p className="max-w-[700px] text-muted-foreground md:text-xl">
-                Our platform offers extensive resources designed specifically for rural girls.
+                {content.featuresSubtitle}
               </p>
             </motion.div>
           </motion.div>
@@ -406,10 +481,10 @@ export default function Home() {
           >
             <motion.div variants={itemVariants} className="space-y-2">
               <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">
-                Latest <span className="gradient-text">Updates</span>
+                <span className="gradient-text">{content.updatesTitle}</span>
               </h2>
               <p className="max-w-[700px] text-muted-foreground md:text-xl">
-                Stay informed about new resources, events, and opportunities.
+                {content.updatesSubtitle}
               </p>
             </motion.div>
           </motion.div>
@@ -483,9 +558,9 @@ export default function Home() {
             className="flex flex-col items-center justify-center space-y-4 text-center"
           >
             <motion.div variants={itemVariants} className="space-y-2">
-              <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">Join Our Community Today</h2>
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">{content.ctaTitle}</h2>
               <p className="max-w-[700px] md:text-xl">
-                Connect with other rural girls, access resources, and start your journey towards empowerment.
+                {content.ctaSubtitle}
               </p>
             </motion.div>
             <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-4 mt-4">
@@ -510,10 +585,10 @@ export default function Home() {
         <div className="container px-4 md:px-6">
           <div className="text-center mb-10">
             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">
-              Our <AnimatedGradientText>Impact</AnimatedGradientText>
+              <AnimatedGradientText>{content.impactTitle}</AnimatedGradientText>
             </h2>
             <p className="max-w-[700px] mx-auto text-muted-foreground md:text-xl mt-2">
-              Transforming lives across rural communities
+              {content.impactSubtitle}
             </p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
@@ -569,10 +644,10 @@ export default function Home() {
         <div className="container px-4 md:px-6">
           <div className="text-center mb-10">
             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">
-              How It <span className="gradient-text">Works</span>
+              <span className="gradient-text">{content.howItWorksTitle}</span>
             </h2>
             <p className="max-w-[700px] mx-auto text-muted-foreground md:text-xl mt-2">
-              Simple steps to start your empowerment journey
+              {content.howItWorksSubtitle}
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">

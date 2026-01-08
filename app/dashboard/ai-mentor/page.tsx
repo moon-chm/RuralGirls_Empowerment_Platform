@@ -1,9 +1,9 @@
 "use client"
 import { useState, useRef, useEffect } from "react"
-import { useToast } from "@/components/ui/use-toast"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
+import { useToast } from "@/components/ui/use-toast"
 import {
   Loader2,
   Send,
@@ -18,7 +18,7 @@ import {
   BookOpen,
   Rocket,
 } from "lucide-react"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion } from "framer-motion"
 import Image from "next/image"
 
 type Message = {
@@ -74,7 +74,6 @@ export default function AIMentorPage() {
   const [input, setInput] = useState("")
   const [messages, setMessages] = useState<Message[]>([])
   const [loading, setLoading] = useState(false)
-  const [showSuggestions, setShowSuggestions] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const { toast } = useToast()
 
@@ -88,7 +87,6 @@ export default function AIMentorPage() {
 
     setInput("")
     setLoading(true)
-    setShowSuggestions(false)
 
     const userMsg: Message = {
       id: Date.now().toString(),
@@ -135,7 +133,7 @@ export default function AIMentorPage() {
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden">
-      {/* Background image with overlay */}
+      {/* Background with overlay */}
       <div className="absolute inset-0 z-0">
         <Image
           src="/pri.png"
@@ -153,6 +151,7 @@ export default function AIMentorPage() {
         transition={{ duration: 0.6 }}
         className="relative z-10 flex flex-col items-center justify-center min-h-screen p-4"
       >
+        {/* Header */}
         <motion.h1
           className="text-4xl font-bold mb-6 text-primary"
           initial={{ scale: 0.9, opacity: 0 }}
@@ -164,33 +163,32 @@ export default function AIMentorPage() {
             delay: 0.2,
           }}
         >
-          <span className="inline-block">
-            <motion.span
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-              className="inline-flex items-center"
+          <motion.span
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="inline-flex items-center"
+          >
+            Prakriti AI Mentor
+            <motion.div
+              animate={{
+                rotate: 360,
+                scale: [1, 1.2, 1],
+              }}
+              transition={{
+                rotate: { repeat: Infinity, duration: 10, ease: "linear" },
+                scale: { repeat: Infinity, duration: 2, ease: "easeInOut" },
+              }}
+              className="ml-2"
             >
-              Prakriti AI Mentor
-              <motion.div
-                animate={{
-                  rotate: 360,
-                  scale: [1, 1.2, 1],
-                }}
-                transition={{
-                  rotate: { repeat: Number.POSITIVE_INFINITY, duration: 10, ease: "linear" },
-                  scale: { repeat: Number.POSITIVE_INFINITY, duration: 2, ease: "easeInOut" },
-                }}
-                className="ml-2"
-              >
-                <Sparkles className="h-6 w-6 text-yellow-400" />
-              </motion.div>
-            </motion.span>
-          </span>
+              <Sparkles className="h-6 w-6 text-yellow-400" />
+            </motion.div>
+          </motion.span>
         </motion.h1>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 h-[calc(100vh-200px)]">
-          {/* Improved Sidebar */}
+        {/* Main Content Grid */}
+        <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-4 gap-4 h-[calc(100vh-200px)]">
+          {/* Sidebar */}
           <div className="lg:col-span-1 bg-white rounded-xl shadow-sm border border-gray-200/50 p-4 overflow-y-auto">
             <div className="space-y-6">
               {/* Quick Actions */}
@@ -200,59 +198,23 @@ export default function AIMentorPage() {
                   Quick Start
                 </h2>
                 <div className="grid grid-cols-1 gap-2">
-                  {quickActions.slice(0, 4).map((action, index) => (
-                    <div key={action.label}>
-                      <Button
-                        variant="ghost"
-                        className="w-full justify-start p-3 h-auto border border-gray-100 hover:border-primary/30 hover:bg-primary/5 transition-all duration-200 group rounded-lg"
-                        onClick={() => handleSendMessage(action.prompt)}
-                      >
-                        <div className="flex items-center gap-2">
-                          <div className="p-1.5 rounded-md bg-gradient-to-br from-primary/10 to-purple-100 group-hover:from-primary/20 group-hover:to-purple-200 transition-colors">
-                            {action.icon}
-                          </div>
-                          <span className="font-medium text-sm text-gray-700">{action.label}</span>
+                  {quickActions.slice(0, 4).map((action) => (
+                    <Button
+                      key={action.label}
+                      variant="ghost"
+                      className="w-full justify-start p-3 h-auto border border-gray-100 hover:border-primary/30 hover:bg-primary/5 transition-all duration-200 group rounded-lg"
+                      onClick={() => handleSendMessage(action.prompt)}
+                    >
+                      <div className="flex items-center gap-2">
+                        <div className="p-1.5 rounded-md bg-gradient-to-br from-primary/10 to-purple-100 group-hover:from-primary/20 group-hover:to-purple-200 transition-colors">
+                          {action.icon}
                         </div>
-                      </Button>
-                    </div>
+                        <span className="font-medium text-sm text-gray-700">{action.label}</span>
+                      </div>
+                    </Button>
                   ))}
                 </div>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={clearMessages}
-                title="Clear Chat"
-                className="hover:bg-red-100 hover:text-red-600 transition-colors"
-              >
-                <Trash2 className="h-4 w-4 text-red-400" />
-              </Button>
-            </div>
-          </CardHeader>
-
-          <CardContent className="flex-1 overflow-y-auto p-4 space-y-4">
-            {messages.length === 0 ? (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.3 }}
-                className="text-center py-6"
-              >
-                <motion.div
-                  initial={{ y: -20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.4, duration: 0.5 }}
-                >
-                  <Image
-                    src="/pri.png"
-                    alt="AI Assistant"
-                    width={120}
-                    height={120}
-                    className="mx-auto mb-4 rounded-full shadow-lg border-4 border-primary/20"
-                  />
-                </motion.div>
-
-                <h3 className="text-xl font-semibold mb-5 text-gray-800">How can I help you today?</h3>
 
               {/* Popular Topics */}
               <div>
@@ -261,22 +223,21 @@ export default function AIMentorPage() {
                   Popular Topics
                 </h3>
                 <div className="space-y-1">
-                  {suggestedTopics.slice(0, 3).map((topic, index) => (
-                    <div key={topic}>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="w-full justify-start text-xs text-gray-600 hover:text-primary hover:bg-primary/5 p-2 h-auto rounded-md"
-                        onClick={() => handleSendMessage(topic)}
-                      >
-                        <div className="truncate text-left">{topic}</div>
-                      </Button>
-                    </div>
+                  {suggestedTopics.slice(0, 3).map((topic) => (
+                    <Button
+                      key={topic}
+                      variant="ghost"
+                      size="sm"
+                      className="w-full justify-start text-xs text-gray-600 hover:text-primary hover:bg-primary/5 p-2 h-auto rounded-md"
+                      onClick={() => handleSendMessage(topic)}
+                    >
+                      <div className="truncate text-left">{topic}</div>
+                    </Button>
                   ))}
                 </div>
               </div>
 
-              {/* Stats or Info */}
+              {/* Status */}
               <div className="pt-4 border-t border-gray-100">
                 <div className="text-xs text-gray-500 space-y-1">
                   <div className="flex items-center gap-2">
@@ -312,17 +273,15 @@ export default function AIMentorPage() {
                     <p className="text-xs text-gray-500">Online • Ready to help</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={clearMessages}
-                    title="Clear Chat"
-                    className="hover:bg-red-50 hover:text-red-600 transition-colors rounded-lg"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearMessages}
+                  title="Clear Chat"
+                  className="hover:bg-red-50 hover:text-red-600 transition-colors rounded-lg"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
               </div>
             </CardHeader>
 
@@ -495,7 +454,7 @@ export default function AIMentorPage() {
             Powered by advanced AI • Your trusted companion for guidance and support
           </p>
         </div>
-      </div>
+      </motion.div>
     </div>
   )
 }

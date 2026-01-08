@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
+import { useRouter } from "next/navigation";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import {
   ArrowRight,
@@ -49,7 +50,7 @@ import { motion } from "framer-motion"
 export default function SkillMarketplace() {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("All Categories")
-
+  const router = useRouter();
   // Course categories
   const categories = [
     "All Categories",
@@ -714,14 +715,27 @@ export default function SkillMarketplace() {
                       <CardContent>
                         <p className="text-muted-foreground">{course.description}</p>
                       </CardContent>
-                      <CardFooter className="flex justify-between">
-                        <Button variant="link" asChild className="px-0">
-                          <Link href="#">
-                            View Details <ArrowRight className="ml-2 h-4 w-4" />
-                          </Link>
-                        </Button>
-                        <Button size="sm">Enroll</Button>
-                      </CardFooter>
+<CardFooter className="flex justify-between">
+  <Button
+    variant="link"
+    className="px-0"
+    onClick={() =>
+      router.push(`/courses/${encodeURIComponent(course.title.replace(/\s+/g, "-").toLowerCase())}`)
+    }
+  >
+    View Details <ArrowRight className="ml-2 h-4 w-4" />
+  </Button>
+
+  <Button
+    size="sm"
+    onClick={() =>
+      router.push(`/courses/${encodeURIComponent(course.title.replace(/\s+/g, "-").toLowerCase())}`)
+    }
+  >
+    Enroll
+  </Button>
+</CardFooter>
+
                     </Card>
                   ))}
                 </div>

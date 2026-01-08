@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useFirebase } from "@/lib/firebase/firebase-provider"
 import {
@@ -22,7 +22,6 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { doc, getDoc } from "firebase/firestore"
-import { useState } from "react"
 import { Bell, Home, BookOpen, Briefcase, GraduationCap, Users, Shield, Bot, LogOut } from "lucide-react"
 import Link from "next/link"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
@@ -37,6 +36,12 @@ export default function DashboardLayout({
   const { user, signOut, db, isInitialized, loading: authLoading } = useFirebase()
   const [userData, setUserData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [isMounted, setIsMounted] = useState(false)
+
+  // Fix hydration: Only render after mount
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -70,7 +75,6 @@ export default function DashboardLayout({
 
           // Check if profile is complete (optional, don't block)
           if (!data.profileComplete) {
-            // Don't redirect immediately, let user access dashboard
             console.log("Profile incomplete, but allowing access")
           }
         } else {
@@ -98,6 +102,11 @@ export default function DashboardLayout({
     }
   }
 
+  // Prevent hydration mismatch by showing consistent content on server
+  if (!isMounted) {
+    return null
+  }
+
   if (!isInitialized) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-purple-50 to-pink-50 p-4">
@@ -119,7 +128,7 @@ export default function DashboardLayout({
     )
   }
 
-  if (loading) {
+  if (loading || authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-purple-50 to-pink-50">
         <div className="text-center">
@@ -131,7 +140,6 @@ export default function DashboardLayout({
   }
 
   if (!user) {
-    router.push("/login")
     return null
   }
 
