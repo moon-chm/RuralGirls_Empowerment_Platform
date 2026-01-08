@@ -1,8 +1,10 @@
+"use client";
+
 import { useState } from "react";
 import CourseCard from "@/components/CourseCard";
 import { categories, courses } from "@/lib/data";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { Star } from "lucide-react";
 
 const Index = () => {
@@ -10,9 +12,13 @@ const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredCourses = courses.filter((course) => {
-    const matchesCategory = activeCategory === "all" || course.category === activeCategory;
-    const matchesSearch = course.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          course.description.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory =
+      activeCategory === "all" || course.category === activeCategory;
+
+    const matchesSearch =
+      course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      course.description.toLowerCase().includes(searchQuery.toLowerCase());
+
     return matchesCategory && matchesSearch;
   });
 
@@ -27,9 +33,10 @@ const Index = () => {
               Learn New Skills, Transform Your Community
             </h1>
             <p className="text-xl text-white/90 mb-8">
-              Join thousands of learners and develop practical skills that make a real difference. 
-              Start your learning journey today.
+              Join thousands of learners and develop practical skills that make a
+              real difference. Start your learning journey today.
             </p>
+
             <div className="relative max-w-xl">
               <input
                 type="text"
@@ -71,9 +78,11 @@ const Index = () => {
                 key={category.id}
                 onClick={() => setActiveCategory(category.id)}
                 className={`px-6 py-3 rounded-full font-medium whitespace-nowrap transition-all
-                  ${activeCategory === category.id 
-                    ? 'bg-brand-purple text-white shadow-lg shadow-brand-purple/25 scale-105' 
-                    : 'bg-white text-gray-700 hover:bg-gray-100'}`}
+                  ${
+                    activeCategory === category.id
+                      ? "bg-brand-purple text-white shadow-lg shadow-brand-purple/25 scale-105"
+                      : "bg-white text-gray-700 hover:bg-gray-100"
+                  }`}
               >
                 {category.name}
               </button>
@@ -84,19 +93,19 @@ const Index = () => {
         {/* Course Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredCourses.map((course) => (
-            <div 
+            <div
               key={course.id}
               className="group relative bg-white rounded-xl border shadow-sm overflow-hidden transition-all duration-300 hover:shadow-xl"
             >
               <div className="aspect-w-16 aspect-h-9 bg-gray-100">
-                <img 
-                  src={course.image} 
+                <img
+                  src={course.image}
                   alt={course.title}
                   className="object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
-              
+
               <div className="p-6">
                 <div className="flex items-center gap-2 mb-3">
                   <span className="px-3 py-1 rounded-full text-xs font-medium bg-brand-purple/10 text-brand-purple">
@@ -106,24 +115,28 @@ const Index = () => {
                     {course.duration.weeks} weeks
                   </span>
                 </div>
-                
+
                 <h3 className="font-bold text-xl mb-2 group-hover:text-brand-purple transition-colors">
                   {course.title}
                 </h3>
-                
+
                 <p className="text-gray-600 mb-4 line-clamp-2">
                   {course.description}
                 </p>
-                
+
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1">
                     <Star className="w-5 h-5 text-yellow-400" />
-                    <span className="font-medium">{course.rating.score}</span>
-                    <span className="text-gray-500">({course.rating.count})</span>
+                    <span className="font-medium">
+                      {course.rating.score}
+                    </span>
+                    <span className="text-gray-500">
+                      ({course.rating.count})
+                    </span>
                   </div>
-                  
+
                   <Link
-                    to={`/courses/${course.id}`}
+                    href={`/courses/${course.id}`}
                     className="text-brand-purple font-medium hover:underline"
                   >
                     View Details
@@ -132,11 +145,13 @@ const Index = () => {
               </div>
             </div>
           ))}
-          
+
           {filteredCourses.length === 0 && (
             <div className="col-span-full text-center py-12">
               <h3 className="text-xl font-medium mb-2">No courses found</h3>
-              <p className="text-gray-500">Try changing your search or category filter</p>
+              <p className="text-gray-500">
+                Try changing your search or category filter
+              </p>
             </div>
           )}
         </div>
